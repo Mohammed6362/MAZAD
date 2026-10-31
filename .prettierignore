@@ -1,0 +1,8 @@
+# استثناء الملفات التي لا ينبغي إعادة تنسيقها آليًا، مثل المخرجات والاعتماديات والبيانات الخاصة.
+node_modules
+dist
+archive
+backend/uploads
+package-lock.json
+backend/package-lock.json
+frontend/package-lock.json

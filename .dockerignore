@@ -1,0 +1,13 @@
+# استثناء بيانات التطوير والأسرار والصور والنسخ والتقارير من سياق بناء صورة الإنتاج.
+**/node_modules
+**/dist
+**/.env
+**/.env.*
+!**/.env.example
+**/*.log
+backend/uploads
+backups
+test-results
+playwright-report
+archive
+.git

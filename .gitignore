@@ -1,0 +1,14 @@
+# استثناء الاعتماديات والمخرجات والأسرار والصور الخاصة والنسخ والتقارير من تتبع Git.
+node_modules/
+dist/
+.env
+.env.*
+!.env.example
+*.log
+.tmp/
+backups/
+backend/uploads/private/
+test-results/
+playwright-report/
+backend/uploads/cars/*
+!backend/uploads/cars/.gitkeep
