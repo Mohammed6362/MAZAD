@@ -7,6 +7,10 @@ const fs = require('node:fs/promises');
 const path = require('node:path');
 const { spawn } = require('node:child_process');
 const { uploadsRoot } = require('../src/config');
+const databaseOptions = require('../src/databaseOptions')();
+const databaseUrl = databaseOptions.connectionString
+  ? new URL(databaseOptions.connectionString)
+  : null;
 // يستخدم مسار pg_dump المحدد أو يبحث عن تثبيت PostgreSQL على ويندوز قبل الاعتماد على PATH.
 async function findDump() {
   if (process.env.PG_DUMP_PATH) return process.env.PG_DUMP_PATH;
@@ -38,6 +42,8 @@ async function backup() {
           '--format=custom',
           '--no-owner',
           '--no-acl',
+          '--enable-row-security',
+          '--schema=' + (process.env.DB_SCHEMA || 'public'),
           '--file',
           path.join(pending, 'database.dump'),
         ],
@@ -47,11 +53,24 @@ async function backup() {
           stdio: ['ignore', 'ignore', 'pipe'],
           env: {
             ...process.env,
-            PGHOST: process.env.DB_HOST,
-            PGPORT: process.env.DB_PORT || '5432',
-            PGDATABASE: process.env.DB_NAME,
-            PGUSER: process.env.DB_USER,
-            PGPASSWORD: process.env.DB_PASSWORD,
+            PGHOST: databaseUrl?.hostname || process.env.DB_HOST,
+            PGPORT: databaseUrl?.port || process.env.DB_PORT || '5432',
+            PGDATABASE: databaseUrl
+              ? decodeURIComponent(databaseUrl.pathname.slice(1))
+              : process.env.DB_NAME,
+            PGUSER: databaseUrl ? decodeURIComponent(databaseUrl.username) : process.env.DB_USER,
+            PGPASSWORD: databaseUrl
+              ? decodeURIComponent(databaseUrl.password)
+              : process.env.DB_PASSWORD,
+            PGOPTIONS: databaseOptions.options,
+            PGSSLMODE: databaseOptions.ssl ? 'verify-full' : 'prefer',
+            ...(databaseOptions.ssl
+              ? {
+                  PGSSLROOTCERT: process.env.DB_SSL_CA_PATH
+                    ? path.resolve(__dirname, '..', process.env.DB_SSL_CA_PATH)
+                    : 'system',
+                }
+              : {}),
           },
         },
       );

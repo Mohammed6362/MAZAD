@@ -61,12 +61,14 @@ export default function BidPanel({ auctionId }) {
   useEffect(() => {
     alive.current = true;
     refresh();
+    window.addEventListener('mazad:market', refresh);
     const timer = setInterval(() => {
       if (!document.hidden) refresh();
     }, 5000);
     return () => {
       alive.current = false;
       clearInterval(timer);
+      window.removeEventListener('mazad:market', refresh);
     };
   }, [refresh]);
   const current = Number(auction?.current_price ?? auction?.starting_price ?? 0);

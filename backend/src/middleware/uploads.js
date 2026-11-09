@@ -9,6 +9,7 @@ const crypto = require('crypto');
 const sharp = require('sharp');
 const pool = require('../db');
 const { uploadsRoot } = require('../config');
+const fileStorage = require('../services/fileStorage');
 const uploadsDir = path.join(uploadsRoot, 'cars');
 fs.mkdirSync(uploadsDir, { recursive: true });
 const ownershipDir = path.join(uploadsRoot, 'private', 'ownership');
@@ -48,7 +49,16 @@ const upload = multer({
 
 // يحذف الملفات الجديدة عند فشل الطلب؛ يتسامح مع ملف سبق حذفه أثناء التنظيف.
 function removeFiles(files = []) {
-  return Promise.all(files.map((file) => fs.promises.unlink(file.path).catch(() => {})));
+  return Promise.all(
+    files.map(async (file) => {
+      const key = path.relative(uploadsRoot, file.path).split(path.sep).join('/');
+      try {
+        await fileStorage.removeFile(key);
+      } catch (error) {
+        console.error('File cleanup failed:', error.code || error.message);
+      }
+    }),
+  );
 }
 // يفحص توقيع الصورة وفك ترميزها، ويصحح الاستدارة ويصغر الأبعاد ويزيل البيانات الوصفية قبل الحفظ.
 async function validateImage(file) {
@@ -82,6 +92,8 @@ async function validateImage(file) {
     throw new Error('أحد الملفات ليس صورة صالحة أو يتجاوز حجم الأبعاد المسموح.');
   }
   await fs.promises.writeFile(file.path, buffer);
+  const key = path.relative(uploadsRoot, file.path).split(path.sep).join('/');
+  await fileStorage.saveFile(key, buffer, file.mimetype);
 }
 
 // يحذف صورة قديمة من القرص فقط عندما لا يبقى سجل يستخدمها، مع تقييد مفتاح التخزين للمجلد العام.
@@ -98,7 +110,7 @@ async function removeStoredImages(images) {
         [image.storage_key, image.url],
       );
       if (remaining.rowCount) continue;
-      await fs.promises.unlink(path.join(uploadsRoot, image.storage_key));
+      await fileStorage.removeFile(image.storage_key);
     } catch (error) {
       if (error.code !== 'ENOENT') console.error('Image cleanup failed:', error.code || 'unknown');
     }

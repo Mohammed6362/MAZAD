@@ -11,13 +11,8 @@ const { Pool } = require('pg');
 
 test('merging existing buyer and seller roles preserves accounts, cars, sessions and admin grants', async (t) => {
   const name = `mazad_merge_${process.pid}_${Date.now()}`;
-  const db = new Pool({
-    host: process.env.DB_HOST,
-    port: Number(process.env.DB_PORT || 5432),
-    database: process.env.DB_NAME,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-  });
+  process.env.NODE_ENV = 'test';
+  const db = new Pool(require('../src/databaseOptions')({ options: undefined }));
   let client;
   t.after(async () => {
     client?.release();

@@ -9,14 +9,9 @@ require('dotenv').config({ path: require('path').resolve(__dirname, '../.env') }
 const fs = require('fs');
 const path = require('path');
 const { Pool } = require('pg');
+if (process.env.DATABASE_ADMIN_URL) process.env.DATABASE_URL = process.env.DATABASE_ADMIN_URL;
 
-const pool = new Pool({
-  host: process.env.DB_HOST,
-  port: Number(process.env.DB_PORT || 5432),
-  database: process.env.DB_NAME,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-});
+const pool = new Pool(require('../src/databaseOptions')());
 
 // يتحقق من وجود الجداول الأساسية ثم ينفذ التحديثات بترتيب أسمائها دون حذف بيانات التشغيل.
 async function migrateDatabase() {
@@ -25,7 +20,7 @@ async function migrateDatabase() {
     const baseTables = await client.query(
       `SELECT COUNT(DISTINCT table_name)::int AS count
        FROM information_schema.tables
-       WHERE table_schema = 'public' AND table_name IN ('cars', 'car_images')`,
+       WHERE table_schema = current_schema() AND table_name IN ('cars', 'car_images')`,
     );
     if (baseTables.rows[0].count !== 2) {
       throw new Error('Apply database/schema.sql to a new database before running migrations.');

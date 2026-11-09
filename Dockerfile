@@ -13,6 +13,7 @@ WORKDIR /app/backend
 COPY backend/package*.json ./
 RUN npm ci --omit=dev && npm cache clean --force
 COPY --chown=node:node backend/src ./src
+COPY --chown=node:node backend/certs ./certs
 COPY --chown=node:node shared/ /app/shared/
 COPY --chown=node:node backend/server.js ./server.js
 COPY --chown=node:node backend/scripts ./scripts

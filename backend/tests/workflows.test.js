@@ -14,13 +14,8 @@ const { Pool } = require('pg');
 test('account, vehicle review, auction, bidding, winner and invoice workflow', async (t) => {
   // All database writes target an isolated schema; production data is never reused.
   const schema = `mazad_test_${Date.now()}`;
-  const control = new Pool({
-    host: process.env.DB_HOST,
-    port: Number(process.env.DB_PORT || 5432),
-    database: process.env.DB_NAME,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-  });
+  process.env.NODE_ENV = 'test';
+  const control = new Pool(require('../src/databaseOptions')({ options: undefined }));
   const uploads = await fs.mkdtemp(path.join(os.tmpdir(), 'mazad-test-'));
   let server;
   let pool;

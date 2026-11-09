@@ -11,6 +11,7 @@ const pool = require('./db');
 const { isProduction, sessionSecret, sessionTtl, uploadsRoot, frontendDist } = require('./config');
 const PostgresSessionStore = require('./sessionStore');
 const { respondError } = require('./utils/http');
+const fileStorage = require('./services/fileStorage');
 if (!sessionSecret || sessionSecret.length < 32)
   throw new Error('Set SESSION_SECRET to at least 32 random characters.');
 const app = express();
@@ -44,6 +45,16 @@ app.use((req, res, next) => {
 // حد جسم JSON لا ينطبق على ملفات multipart؛ أحجام الصور تُضبط في middleware الرفع.
 app.use(express.json({ limit: '32kb' }));
 // صور السيارات وحدها ملفات ثابتة؛ أوراق الملكية تمر بمسار الإدارة أو مسار المزاد المعتمد.
+app.get('/uploads/cars/:filename', async (req, res, next) => {
+  if (!/^[a-zA-Z0-9_-]+\.(jpg|jpeg|png|webp)$/.test(req.params.filename))
+    return respondError(res, 404, 'الصورة غير متاحة.');
+  res.type(path.extname(req.params.filename));
+  try {
+    await fileStorage.sendFile(res, 'cars/' + req.params.filename);
+  } catch (error) {
+    next(error);
+  }
+});
 app.use(
   '/uploads/cars',
   express.static(path.join(uploadsRoot, 'cars'), { dotfiles: 'deny', index: false }),
@@ -74,6 +85,7 @@ app.get('/api/health', async (_req, res, next) => {
   }
 });
 // تركيب ملفات المسارات بعد الجلسة يجعل هوية صاحب الطلب متاحة لكل حارس صلاحيات.
+require('./routes/realtime')(app);
 for (const route of [
   'auth',
   'cars',

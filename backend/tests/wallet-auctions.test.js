@@ -14,13 +14,8 @@ const { Pool } = require('pg');
 test('demo LYD wallet reserves, releases, extends, closes and settles exactly once under concurrency', async (t) => {
   const schema = `mazad_wallet_${process.pid}_${Date.now()}`;
   const uploads = await fs.mkdtemp(path.join(os.tmpdir(), 'mazad-wallet-test-'));
-  const control = new Pool({
-    host: process.env.DB_HOST,
-    port: Number(process.env.DB_PORT || 5432),
-    database: process.env.DB_NAME,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-  });
+  process.env.NODE_ENV = 'test';
+  const control = new Pool(require('../src/databaseOptions')({ options: undefined }));
   let server, pool;
   t.after(async () => {
     if (server) {

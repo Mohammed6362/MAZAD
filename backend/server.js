@@ -21,7 +21,9 @@ server.on('error', (error) => {
 });
 // ينتظر العامل الجاري ثم يغلق HTTP ومجموعة الاتصالات، مع مهلة أخيرة تمنع تعليق الإيقاف.
 function shutdown() {
-  stopCloser().finally(() => server.close(() => pool.end().finally(() => process.exit(0))));
+  stopCloser()
+    .then(() => app.locals.stopRealtime())
+    .finally(() => server.close(() => pool.end().finally(() => process.exit(0))));
   setTimeout(() => process.exit(1), 10000).unref();
 }
 process.on('SIGINT', shutdown);

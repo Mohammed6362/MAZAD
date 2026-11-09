@@ -58,10 +58,12 @@ export default function CarDetailsPage() {
       if (!document.hidden) refresh();
     }, 15000);
     window.addEventListener('focus', refresh);
+    window.addEventListener('mazad:market', refresh);
     return () => {
       alive = false;
       window.clearInterval(timer);
       window.removeEventListener('focus', refresh);
+      window.removeEventListener('mazad:market', refresh);
     };
   }, [id]);
 

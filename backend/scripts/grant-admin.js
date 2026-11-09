@@ -19,13 +19,7 @@ if (!phone && !email) {
   process.exit(1);
 }
 
-const pool = new Pool({
-  host: process.env.DB_HOST,
-  port: Number(process.env.DB_PORT || 5432),
-  database: process.env.DB_NAME,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-});
+const pool = new Pool(require('../src/databaseOptions')());
 
 // يبحث عن الحساب الموجود ثم يمنحه الدور الإداري؛ لا يستبدل كلمة المرور أو بياناته الشخصية.
 async function grantAdminRole() {

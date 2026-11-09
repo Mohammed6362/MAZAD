@@ -28,6 +28,7 @@ import AdminUsersPage from './features/admin/pages/AdminUsersPage.jsx';
 import AuctionPage from './features/auctions/AuctionPage.jsx';
 import AdminLayout from './layouts/AdminLayout.jsx';
 import { routes } from './routes.js';
+import { connectRealtime } from './realtime.js';
 // يجمع رأس الموقع ومحتوى الصفحة الحالية وتذييلها دون تكرارها في كل مسار.
 function SiteLayout() {
   return (
@@ -67,6 +68,7 @@ function ScrollToPage() {
   return null;
 }
 export default function App() {
+  useEffect(() => connectRealtime(), []);
   return (
     <>
       <ScrollToPage />

@@ -4,7 +4,7 @@
  */
 const path = require('node:path');
 const pool = require('../db');
-const { uploadsRoot } = require('../config');
+const fileStorage = require('../services/fileStorage');
 const { requireRole } = require('../middleware/auth');
 const { respondError } = require('../utils/http');
 const { carVisibilitySql, viewerParameters } = require('../utils/carVisibility');
@@ -52,9 +52,7 @@ module.exports = (app) => {
         'Content-Disposition',
         `inline; filename="ownership-${doc.id}${path.extname(doc.storage_key)}"`,
       );
-      res.sendFile(path.join(uploadsRoot, doc.storage_key), (error) => {
-        if (error && !res.headersSent) respondError(res, 404, 'المستند غير متاح.');
-      });
+      await fileStorage.sendFile(res, doc.storage_key);
     } catch (error) {
       next(error);
     }
@@ -75,9 +73,7 @@ module.exports = (app) => {
         'Content-Disposition',
         `inline; filename="passport${path.extname(doc.storage_key)}"`,
       );
-      res.sendFile(path.join(uploadsRoot, doc.storage_key), (error) => {
-        if (error && !res.headersSent) respondError(res, 404, 'صورة الجواز غير متاحة.');
-      });
+      await fileStorage.sendFile(res, doc.storage_key);
     } catch (error) {
       next(error);
     }
@@ -115,9 +111,7 @@ module.exports = (app) => {
         'Content-Disposition',
         `inline; filename="ownership-${doc.id}${path.extname(doc.storage_key)}"`,
       );
-      res.sendFile(path.join(uploadsRoot, doc.storage_key), (error) => {
-        if (error && !res.headersSent) respondError(res, 404, 'المستند غير متاح.');
-      });
+      await fileStorage.sendFile(res, doc.storage_key);
     } catch (error) {
       next(error);
     }
