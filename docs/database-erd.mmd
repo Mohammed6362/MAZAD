@@ -1,0 +1,190 @@
+erDiagram
+    direction LR
+    users {
+        bigint id PK
+        varchar full_name
+        varchar phone UK
+        varchar email "nullable"
+        user_status status
+        boolean can_list
+        boolean can_bid
+        integer auth_version
+    }
+    user_roles {
+        bigint user_id PK,FK
+        user_role role PK
+        timestamptz granted_at
+    }
+    user_passports {
+        bigint user_id PK,FK
+        text storage_key UK
+        text mime_type
+        timestamptz created_at
+    }
+    user_permission_events {
+        bigint id PK
+        bigint user_id FK
+        bigint actor_id FK
+        jsonb previous_permissions
+        jsonb permissions
+        timestamptz created_at
+    }
+    user_sessions {
+        text sid PK
+        jsonb sess
+        timestamptz expires_at
+    }
+    notifications {
+        bigint id PK
+        bigint user_id FK
+        text audience
+        varchar title
+        text link
+        timestamptz read_at "nullable"
+    }
+    platform_settings {
+        smallint id PK
+        numeric listing_fee
+        bigint primary_admin_id FK "nullable"
+    }
+    vehicles {
+        bigint id PK
+        varchar vin UK
+        varchar make
+        varchar model
+        smallint year
+        bigint current_owner_id FK "nullable"
+    }
+    cars {
+        bigint id PK
+        bigint vehicle_id FK
+        bigint seller_id FK
+        bigint reviewed_by FK "nullable"
+        bigint deleted_by FK "nullable"
+        car_status status
+        text ownership_status
+        numeric listing_fee_amount "nullable"
+    }
+    car_images {
+        bigint id PK
+        bigint car_id FK
+        text url
+        smallint sort_order
+        text storage_key "nullable"
+    }
+    car_ownership_documents {
+        bigint id PK
+        bigint car_id FK
+        text storage_key UK
+        text mime_type
+        timestamptz created_at
+    }
+    vehicle_ownership_history {
+        bigint id PK
+        bigint vehicle_id FK
+        bigint car_id FK
+        bigint from_owner_id FK "nullable"
+        bigint to_owner_id FK
+        bigint invoice_id FK,UK "nullable"
+        bigint verified_by FK "nullable"
+        text source
+        text event_key UK
+    }
+    auctions {
+        bigint id PK
+        bigint car_id FK
+        bigint created_by FK "nullable"
+        bigint winner_id FK "nullable"
+        auction_status status
+        timestamptz start_time
+        timestamptz end_time
+        numeric current_price "nullable"
+    }
+    bids {
+        bigint id PK
+        bigint auction_id FK
+        bigint bidder_id FK
+        numeric amount
+        timestamptz placed_at
+    }
+    invoices {
+        bigint id PK
+        bigint auction_id FK,UK
+        bigint buyer_id FK
+        bigint seller_id FK
+        varchar invoice_number UK
+        text sale_status
+        text settlement_state
+        numeric winning_amount
+    }
+    invoice_events {
+        bigint id PK
+        bigint invoice_id FK
+        bigint actor_id FK "nullable"
+        text kind
+        text note
+        timestamptz created_at
+    }
+    invoice_escrows {
+        bigint invoice_id PK,FK
+        numeric amount
+        timestamptz created_at
+    }
+    wallets {
+        bigint user_id PK,FK
+        numeric balance
+        timestamptz updated_at
+    }
+    wallet_holds {
+        bigint auction_id PK,FK
+        bigint user_id FK
+        numeric amount
+        timestamptz updated_at
+    }
+    wallet_transactions {
+        bigint id PK
+        bigint user_id FK
+        bigint invoice_id FK "nullable"
+        bigint car_id FK "nullable"
+        text kind
+        numeric amount
+        numeric balance_after
+        uuid request_key "nullable"
+    }
+    cars ||..o{ auctions : "car_id"
+    users |o..o{ auctions : "created_by"
+    users |o..o{ auctions : "winner_id"
+    auctions ||..o{ bids : "auction_id"
+    users ||..o{ bids : "bidder_id"
+    cars ||..o{ car_images : "car_id"
+    cars ||..o{ car_ownership_documents : "car_id"
+    users |o..o{ cars : "deleted_by"
+    users |o..o{ cars : "reviewed_by"
+    users ||..o{ cars : "seller_id"
+    vehicles ||..o{ cars : "vehicle_id"
+    invoices ||--o| invoice_escrows : "invoice_id"
+    users |o..o{ invoice_events : "actor_id"
+    invoices ||..o{ invoice_events : "invoice_id"
+    auctions ||..o| invoices : "auction_id"
+    users ||..o{ invoices : "buyer_id"
+    users ||..o{ invoices : "seller_id"
+    users ||..o{ notifications : "user_id"
+    users |o..o| platform_settings : "primary_admin_id"
+    users ||--o| user_passports : "user_id"
+    users ||..o{ user_permission_events : "actor_id"
+    users ||..o{ user_permission_events : "user_id"
+    users ||--o{ user_roles : "user_id"
+    cars ||..o{ vehicle_ownership_history : "car_id"
+    users |o..o{ vehicle_ownership_history : "from_owner_id"
+    invoices |o..o| vehicle_ownership_history : "invoice_id"
+    users ||..o{ vehicle_ownership_history : "to_owner_id"
+    vehicles ||..o{ vehicle_ownership_history : "vehicle_id"
+    users |o..o{ vehicle_ownership_history : "verified_by"
+    users |o..o{ vehicles : "current_owner_id"
+    auctions ||--o| wallet_holds : "auction_id"
+    wallets ||..o{ wallet_holds : "user_id"
+    cars |o..o{ wallet_transactions : "car_id"
+    invoices |o..o{ wallet_transactions : "invoice_id"
+    wallets ||..o{ wallet_transactions : "user_id"
+    users ||--o| wallets : "user_id"
+    users |o..o{ user_sessions : "sess.userId - logical only, no FK"
