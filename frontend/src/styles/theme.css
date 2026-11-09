@@ -1,0 +1,176 @@
+/* متغيرات وألوان المظهر الداكن وضبط عناصر النماذج والطباعة بما يتوافق مع اختيار المظهر. */
+:root {
+  color-scheme: light;
+  --theme-page: #f5f6f2;
+  --theme-surface: #ffffff;
+  --theme-soft: #f5f6f2;
+  --theme-text: #17211d;
+  --theme-muted: #7e8881;
+  --theme-accent: #245b44;
+  --theme-border: #e3e8e1;
+  --theme-danger: #a3433e;
+  --theme-danger-bg: #fff0ee;
+  --theme-warning: #92702c;
+  --theme-warning-bg: #fff6dc;
+  --brand-primary: #174d3c;
+  --brand-primary-hover: #103d2f;
+  --brand-mint: #d6ed78;
+  --brand-gold: #d6ed78;
+  --surface-shadow: 0 12px 35px #1b2a2010;
+  --header-surface: #ffffffed;
+}
+
+/* مصدر ألوان المظهر الداكن؛ القيم الدلالية تعيد تلوين المكونات دون تغيير منطقها. */
+:root[data-color-scheme='dark'] {
+  color-scheme: dark;
+  --theme-page: #101b17;
+  --theme-surface: #192720;
+  --theme-soft: #22332a;
+  --theme-text: #edf3ee;
+  --theme-muted: #b0c0b5;
+  --theme-accent: #9fd5b2;
+  --theme-border: #385043;
+  --brand-primary: #174d3c;
+  --brand-primary-hover: #103d2f;
+  --surface-shadow: 0 12px 35px #00000024;
+  --header-surface: #192720f2;
+  --theme-danger: #ffb1a8;
+  --theme-danger-bg: #492b2a;
+  --theme-warning: #f2d389;
+  --theme-warning-bg: #403724;
+  background: var(--theme-page);
+}
+
+:root[data-color-scheme='dark'] body,
+:root[data-color-scheme='dark'] .admin-shell {
+  background: var(--theme-page);
+}
+
+:root[data-color-scheme='dark'] .site-header {
+  background: var(--header-surface);
+  border-color: var(--theme-border);
+}
+
+:root[data-color-scheme='dark'] .admin-login-page {
+  background: radial-gradient(circle at 15% 12%, #22382b, transparent 30%), var(--theme-page);
+}
+
+/* ضبط خلفية خيارات القوائم ولونها مع المظهر حتى تبقى النصوص مقروءة. */
+select option {
+  background: var(--theme-surface, white);
+  color: var(--theme-text, #17211d);
+}
+
+.theme-switcher {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  gap: 7px;
+  min-height: 40px;
+  padding: 0 10px;
+  border: 1px solid var(--theme-border, #e3e8e1);
+  border-radius: 11px;
+  background: var(--theme-surface, white);
+  color: var(--theme-text, #35443a);
+}
+
+.theme-switcher select {
+  min-height: 38px;
+  max-width: 105px;
+  padding-inline-end: 4px;
+  background: transparent;
+  color: inherit;
+  border: 0;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.theme-switcher:focus-within {
+  outline: 3px solid #90b532;
+  outline-offset: 3px;
+}
+
+/* وضع زر المظهر داخل صفحات الدخول التي لا تحمل رأس الموقع الرئيسي. */
+.auth-content > .theme-switcher {
+  align-self: flex-start;
+  margin-bottom: 12px;
+}
+
+.hero-caption {
+  color: var(--theme-muted, #8b938d);
+}
+
+/* Keep the header usable with both account actions and the appearance control. */
+.site-header {
+  height: auto;
+  min-height: 78px;
+}
+
+.site-header-inner {
+  min-height: 78px;
+  gap: 16px;
+  padding-block: 10px;
+}
+
+.main-nav {
+  gap: 18px;
+}
+
+/* تكييف التخطيط مع شرط حجم الشاشة التالي حتى تظل العناصر واضحة دون تجاوز أفقي. */
+@media (max-width: 760px) {
+  .header-actions .theme-switcher {
+    width: 38px;
+    min-height: 38px;
+    justify-content: center;
+    padding: 0;
+  }
+
+  .header-actions .theme-switcher select {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+  }
+
+  .site-header-inner {
+    min-height: 65px;
+    gap: 10px;
+  }
+
+  .site-header {
+    min-height: 65px;
+  }
+
+  .main-nav {
+    top: 100%;
+  }
+}
+
+/* تنسيق الطباعة: إخفاء أدوات التفاعل وتجهيز المستند للقراءة على الورق. */
+@media print {
+  :root[data-color-scheme] {
+    --theme-surface: white;
+    --theme-soft: #f5f6f2;
+    --theme-text: #17211d;
+    --theme-muted: #536357;
+    --theme-accent: #245b44;
+    --theme-border: #dce4db;
+    --theme-danger: #9a413c;
+    --theme-danger-bg: #fff0ee;
+    --theme-warning: #92702c;
+    --theme-warning-bg: #fff6dc;
+    color-scheme: light;
+    background: white;
+  }
+
+  :root[data-color-scheme] body,
+  :root[data-color-scheme] .admin-shell {
+    background: white;
+  }
+
+  .theme-switcher {
+    display: none;
+  }
+}

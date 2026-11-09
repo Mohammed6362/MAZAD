@@ -1,0 +1,5 @@
+# استثناء الملفات المحلية الحساسة أو المولدة الخاصة بالخلفية من تتبع Git.
+node_modules/
+.env
+uploads/cars/*
+!uploads/cars/.gitkeep
