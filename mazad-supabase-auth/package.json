@@ -1,0 +1,8 @@
+{
+  "name": "mazad-supabase-auth-integration",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {"start": "node examples/server.js"},
+  "dependencies": {"@supabase/supabase-js": "^2.0.0", "dotenv": "^16.0.0", "express": "^5.0.0"}
+}
